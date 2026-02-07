@@ -2,6 +2,9 @@ import os
 import streamlit as st
 import faiss
 import time
+import requests
+import tempfile
+import shutil
 
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
@@ -9,8 +12,7 @@ from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_pymupdf4llm import PyMuPDF4LLMLoader
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.document_loaders import UnstructuredMarkdownLoader
+from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader, UnstructuredMarkdownLoader
 from langchain.tools import tool
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage, AIMessage
@@ -19,6 +21,7 @@ from loguru import logger
 load_dotenv()
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+DOCUMENT_PATH = os.getenv("DOCUMENT_PATH")
 WOKRING_PROJECT_DIR = os.getenv("WORKING_PROJECT_DIR")
 DEFAULT_SYSTEM_PROMPT = (
     'You are a helpful AI assistant of Sayid Muhammad Heykal. You may refine the query if needed.',
@@ -80,12 +83,7 @@ class BuildAgent():
             file_path = "/Users/heykalsayid/Desktop/chatbot-webinar/rag_langchain_streamlit/docs/resume.md"
 
         with st.spinner("Load necessary documents..."):
-            loader = UnstructuredMarkdownLoader(
-                file_path,
-                mode="single",
-                strategy="fast",
-            )
-            docs = loader.load()
+            docs = self._document_loader()
 
             text_splitter = RecursiveCharacterTextSplitter(
                 chunk_size=1000,
@@ -108,6 +106,23 @@ class BuildAgent():
             logger.success(f"Added {len(doc_ids)} documents to vector store")
 
         return vector_store
+    
+    def _document_loader(self):
+        # Download the PDF using requests
+        response = requests.get(DOCUMENT_PATH, stream=True)  # Enable streaming
+        response.raise_for_status()  # Raise an exception for bad responses
+
+        # Save temporary PDF file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".md") as temp_pdf:
+            with response.raw as raw_response:
+                shutil.copyfileobj(raw_response, temp_pdf)
+            temp_pdf_path = temp_pdf.name
+
+        # Load the PDF file from temporary path
+        loader = UnstructuredMarkdownLoader(temp_pdf_path)
+        documents = loader.load()
+
+        return documents
 
 
 
