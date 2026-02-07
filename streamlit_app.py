@@ -22,14 +22,14 @@ load_dotenv()
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 DOCUMENT_PATH = os.getenv("DOCUMENT_PATH")
-WOKRING_PROJECT_DIR = os.getenv("WORKING_PROJECT_DIR")
+# WOKRING_PROJECT_DIR = os.getenv("WORKING_PROJECT_DIR")
 DEFAULT_SYSTEM_PROMPT = (
     'You are a helpful AI assistant of Sayid Muhammad Heykal. You may refine the query if needed.',
     'You are going to answer all the answer based on provided document that accessable from the tool function',
     'You have access to a tool retrieve content from a document. ',
     'Always looking first to the tool to help answer user query...'
 )
-DOC_PATH = os.path.join(WOKRING_PROJECT_DIR, "docs", "resume.pdf")
+# DOC_PATH = os.path.join(WORKING, "docs", "resume.pdf")
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' # macos env issue
 os.environ["LANGSMITH_TRACING"] = "true"
@@ -79,8 +79,8 @@ class BuildAgent():
         )
     
     def docs_to_vector_store(self, file_path: str = None):
-        if not file_path:
-            file_path = "/Users/heykalsayid/Desktop/chatbot-webinar/rag_langchain_streamlit/docs/resume.md"
+        # if not file_path:
+        #     file_path = DOC_PATH
 
         with st.spinner("Load necessary documents..."):
             docs = self._document_loader()
