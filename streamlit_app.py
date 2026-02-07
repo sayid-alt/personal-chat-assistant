@@ -111,7 +111,7 @@ class BuildAgent():
     def _document_loader(self):
         # Download the PDF using requests
         response = requests.get(
-            "https://drive.google.com/uc?id=1amLfLbYN4iu4W_ND9aWzXV3JASAA4dI4&export=download", stream=True)  # Enable streaming
+            "https://drive.google.com/uc?id=1hBc4dyRLRMPIFzWtLA8FMU33vECNJR5R&export=download", stream=True)  # Enable streaming
         response.raise_for_status()  # Raise an exception for bad responses
 
         # Save temporary PDF file
