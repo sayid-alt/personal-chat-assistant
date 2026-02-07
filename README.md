@@ -1,0 +1,90 @@
+# RAG LangChain Streamlit Chatbot
+
+This project is a Retrieval-Augmented Generation (RAG) chatbot application built using Streamlit, LangChain, and Google Gemini. It allows users to interact with a document (specifically a resume in Markdown format) using a conversational AI interface.
+
+## Features
+
+- **RAG Architecture**: Uses retrieval-augmented generation to ground answers in provided documents.
+- **Google Gemini**: Powered by Google's `gemini-2.5-flash` model for generation and `gemini-embedding-001` for embeddings.
+- **Streamlit UI**: Simple and interactive web interface.
+- **Vector Search**: Utilizes FAISS for efficient similarity search.
+- **Document Loading**: Supports loading Markdown documents for context.
+
+## Prerequisites
+
+- Python 3.11 or higher
+- Google Cloud API Key (with access to Gemini models)
+- LangSmith API Key (optional, for tracing)
+
+## Installation
+
+This project uses `uv` for dependency management, but can also be installed via `pip`.
+
+### Using `uv` (Recommended)
+
+1.  **Install `uv`** (if not already installed):
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
+2.  **Sync dependencies**:
+    ```bash
+    uv sync
+    ```
+
+### Using `pip`
+
+1.  **Create a virtual environment**:
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+    ```
+
+2.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    # OR if requirements.txt is not generated, install from pyproject.toml
+    pip install .
+    ```
+
+## Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+GOOGLE_API_KEY=your_google_api_key_here
+LANGSMITH_API_KEY=your_langsmith_api_key_here
+WORKING_PROJECT_DIR=/absolute/path/to/your/project/root
+```
+
+- `GOOGLE_API_KEY`: Required for accessing Gemini models.
+- `LANGSMITH_API_KEY`: Required for LangChain tracing (set `LANGSMITH_TRACING="true"` in code or env).
+- `WORKING_PROJECT_DIR`: The absolute path to the project directory. This is used to locate the `docs` folder.
+
+## Usage
+
+1.  **Prepare your document**:
+    Ensure you have a `docs` directory in your project root and place your `resume.md` (or other markdown file) inside it.
+    *Note: The current code expects `docs/resume.md`.*
+
+2.  **Run the Streamlit app**:
+    ```bash
+    streamlit run streamlit_app.py
+    ```
+    Or with `uv`:
+    ```bash
+    uv run streamlit run streamlit_app.py
+    ```
+
+3.  **Interact**:
+    Open your browser at `http://localhost:8501` and start chatting with the agent about the resume content.
+
+## Project Structure
+
+- `streamlit_app.py`: Main application file containing the Streamlit UI and RAG logic.
+- `pyproject.toml`: Project configuration and dependencies.
+- `docs/`: Directory to store source documents (e.g., `resume.md`).
+
+## License
+
+[Add License Information]
