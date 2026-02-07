@@ -1,3 +1,5 @@
+<a href="https://personal-chat-assistant-dew6nplgt2hzbakluglym9.streamlit.app/"> Chat here </a> 
+
 # 💬 RAG LangChain Streamlit Chatbot
 
 This project is a Retrieval-Augmented Generation (RAG) chatbot application built using Streamlit, LangChain, and Google Gemini. It allows users to interact with a document (specifically a resume in Markdown format) using a conversational AI interface.
