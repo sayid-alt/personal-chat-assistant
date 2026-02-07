@@ -35,6 +35,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' # macos env issue
 os.environ["LANGSMITH_TRACING"] = "true"
 os.environ["LANGSMITH_API_KEY"] = LANGSMITH_API_KEY
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+os.environ["DOCUMENT_PATH"] = DOCUMENT_PATH
 
 # ------------ SIMPLE AGENT ------------
 
