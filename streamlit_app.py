@@ -21,21 +21,32 @@ from loguru import logger
 load_dotenv()
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-DOCUMENT_PATH = os.getenv("DOCUMENT_PATH")
-# WOKRING_PROJECT_DIR = os.getenv("WORKING_PROJECT_DIR")
+DOCUMENT_ONLINE_PATH = os.getenv("DOCUMENT_ONLINE_PATH")
 DEFAULT_SYSTEM_PROMPT = (
-    'You are a helpful AI assistant of Sayid Muhammad Heykal. You may refine the query if needed.',
-    'You are going to answer all the answer based on provided document that accessable from the tool function',
+    'You are a helpful AI assistant for Sayid Muhammad Heykal. You may refine the query if needed.',
+    'You are going to answer all the answer based on provided information that accessable from the tool function',
     'You have access to a tool retrieve content from a document. ',
-    'Always looking first to the tool to help answer user query...'
+    'Reject all the questions that are not related to the document',
+    'Always looking first to the tool to help answer user query...',
 )
-# DOC_PATH = os.path.join(WORKING, "docs", "resume.pdf")
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' # macos env issue
 os.environ["LANGSMITH_TRACING"] = "true"
 os.environ["LANGSMITH_API_KEY"] = LANGSMITH_API_KEY
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
-os.environ["DOCUMENT_PATH"] = DOCUMENT_PATH
+os.environ["DOCUMENT_ONLINE_PATH"] = DOCUMENT_ONLINE_PATH
+
+
+
+# Setup session state to store messages
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [
+        {
+            'role': 'assistant',
+            'content': 'Hello! I am your personal chatbot. How can I assist you today?',
+        }
+    ]
+
 
 # ------------ SIMPLE AGENT ------------
 
@@ -76,12 +87,10 @@ class BuildAgent():
         return create_agent(
             self.model, 
             tools=[retrieve_content],
-            system_prompt=self._system_prompt
+            system_prompt=self._system_prompt + tuple(f"Chat history: {st.session_state.chat_history}")
         )
     
     def docs_to_vector_store(self, file_path: str = None):
-        # if not file_path:
-        #     file_path = DOC_PATH
 
         with st.spinner("Load necessary documents..."):
             docs = self._document_loader()
@@ -111,41 +120,33 @@ class BuildAgent():
     def _document_loader(self):
         # Download the PDF using requests
         response = requests.get(
-            "https://drive.google.com/uc?id=1hBc4dyRLRMPIFzWtLA8FMU33vECNJR5R&export=download", stream=True)  # Enable streaming
+            DOCUMENT_ONLINE_PATH, stream=True)  # Enable streaming
         response.raise_for_status()  # Raise an exception for bad responses
 
         # Save temporary PDF file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".md") as temp_pdf:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".md") as temp_md:
             with response.raw as raw_response:
-                shutil.copyfileobj(raw_response, temp_pdf)
-            temp_pdf_path = temp_pdf.name
+                shutil.copyfileobj(raw_response, temp_md)
+            temp_md_path = temp_md.name
 
         # Load the PDF file from temporary path
-        loader = UnstructuredMarkdownLoader(temp_pdf_path)
+        loader = UnstructuredMarkdownLoader(temp_md_path)
         documents = loader.load()
 
         return documents
 
 
-
 # ------------ INTERFACE CODE ------------
 
-st.title("Personal Chatbot 💬")
+st.title("Personal Assistant Chatbot 💬")
+st.text("This chat will answer the information of Heykal expertise, enjoy chatting! ❤️")
 st.caption("Want to chat me in person? Find me at the coffee shop on Main Street! ☕️")
-
-print(st.session_state)
 
 if 'agent' not in st.session_state:
     st.session_state.agent = BuildAgent().build()
 
-# Setup session state to store messages
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = [
-        {
-            'role': 'assistant',
-            'content': 'Hello! I am your personal chatbot. How can I assist you today?',
-        }
-    ]
+print(st.session_state)
+
 
 for message in st.session_state.chat_history:
     with st.chat_message(message['role']):
