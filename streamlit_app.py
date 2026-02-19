@@ -22,11 +22,11 @@ load_dotenv()
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 DOCUMENT_ONLINE_PATH = os.getenv("DOCUMENT_ONLINE_PATH")
-DEFAULT_SYSTEM_PROMPT = (
-    'You are a helpful AI assistant for Sayid Muhammad Heykal. You may refine the query if needed.',
+INSTRUCTIONS = (
+    'Your name is Daniel, You are a helpful AI assistant only answer to what related to Sayid Muhammad Heykal. You may refine the query if needed.',
     'You are going to answer all the answer based on provided information that accessable from the tool function',
     'You have access to a tool retrieve content from a document. ',
-    'Reject all the questions that are not related to the document',
+    'You have additional information provided inside tags like <foo></foo>',
     'Always looking first to the tool to help answer user query...',
 )
 
@@ -43,7 +43,7 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
         {
             'role': 'assistant',
-            'content': 'Hello! I am your personal chatbot. How can I assist you today?',
+            'content': 'I am Daniel, a helpful AI assistant. I am here to assist you with any questions or information you may need regarding Sayid Muhammad Heykal. How can I help you today?',
         }
     ]
 
@@ -52,7 +52,7 @@ if "chat_history" not in st.session_state:
 
 class BuildAgent():
     def __init__(self, system_prompt: str = None):
-        self._system_prompt = system_prompt if system_prompt else DEFAULT_SYSTEM_PROMPT
+        self._system_prompt = system_prompt if system_prompt else INSTRUCTIONS
         self.model = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
         )
@@ -60,7 +60,6 @@ class BuildAgent():
         self.embedding = GoogleGenerativeAIEmbeddings(
             model="models/gemini-embedding-001",
         )
-
 
     def build(self):
         vector_store = self.docs_to_vector_store()
@@ -87,7 +86,7 @@ class BuildAgent():
         return create_agent(
             self.model, 
             tools=[retrieve_content],
-            system_prompt=self._system_prompt + tuple(f"Chat history: {st.session_state.chat_history}")
+            system_prompt=self._system_prompt
         )
     
     def docs_to_vector_store(self, file_path: str = None):
@@ -142,11 +141,24 @@ st.title("Personal Assistant Chatbot 💬")
 st.text("This chat will answer the information of Heykal expertise, enjoy chatting! ❤️")
 st.caption("Want to chat me in person? Find me at the coffee shop on Main Street! ☕️")
 
-if 'agent' not in st.session_state:
-    st.session_state.agent = BuildAgent().build()
 
+def build_prompt(**kwargs):
+    prompt = []
+
+    for name, content in kwargs.items():
+        if content:
+            prompt.append(f'<{name}>\n{content}\n</{name}>')
+    
+    prompt_str = '\n'.join(prompt)
+
+    return prompt_str
+
+@st.cache_resource
+def build_agent():
+    return BuildAgent().build()
+
+agent = build_agent()
 print(st.session_state)
-
 
 for message in st.session_state.chat_history:
     with st.chat_message(message['role']):
@@ -171,10 +183,10 @@ if prompt := st.chat_input("Type your message here..."):
             try:
                 message_placeholder = st.empty()
                 full_response = ""
-                response = st.session_state.agent.invoke({"messages" : [
+                response = agent.invoke({"messages" : [
                     {
                         'role': 'user',
-                        'content': prompt,
+                        'content': build_prompt(query=prompt, chat_history=st.session_state.chat_history),
                     }
                 ]})
                 response = response['messages'][-1].content[0]['text']
