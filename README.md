@@ -92,7 +92,7 @@ DOCUMENT_ONLINE_PATH=https://url-to-your-markdown-file.md
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/rag_langchain_streamlit.git
+   git clone https://github.com/sayid-alt/personal-chat-assistant.git
    cd rag_langchain_streamlit
    ```
 
