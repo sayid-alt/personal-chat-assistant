@@ -836,6 +836,12 @@ wheels = [
 ]
 
 [[package]]
+name = "htbuilder"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/be/88/0f48d1125168e9eea33879ea820000702533d103f1123d27ca69839a0db4/htbuilder-0.9.0.tar.gz", hash = "sha256:58c0bc5502c1a46b42ae9e074c43ec0f6fdc24ed334936cb17e1ed5a8938aee2", size = 10591, upload-time = "2025-01-09T07:00:26.189Z" }
+
+[[package]]
 name = "html5lib"
 version = "1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2553,6 +2559,7 @@ dependencies = [
     { name = "google-api-python-client" },
     { name = "google-auth-httplib2" },
     { name = "google-auth-oauthlib" },
+    { name = "htbuilder" },
     { name = "langchain", extra = ["google-genai"] },
     { name = "langchain-community" },
     { name = "langchain-core" },
@@ -2574,6 +2581,7 @@ requires-dist = [
     { name = "google-api-python-client", specifier = ">=2.189.0" },
     { name = "google-auth-httplib2", specifier = ">=0.3.0" },
     { name = "google-auth-oauthlib", specifier = ">=1.2.4" },
+    { name = "htbuilder", specifier = ">=0.9.0" },
     { name = "langchain", extras = ["google-genai"], specifier = ">=1.2.9" },
     { name = "langchain-community", specifier = ">=0.4.1" },
     { name = "langchain-core", specifier = ">=1.2.9" },

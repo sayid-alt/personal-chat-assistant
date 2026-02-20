@@ -11,8 +11,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmb
 from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_pymupdf4llm import PyMuPDF4LLMLoader
-from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader, UnstructuredMarkdownLoader
+from langchain_community.document_loaders import UnstructuredMarkdownLoader
 from langchain.tools import tool
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage, AIMessage
@@ -55,9 +54,10 @@ class BuildAgent():
         self._system_prompt = system_prompt if system_prompt else INSTRUCTIONS
         self.model = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
+            temperature=0.2
         )
 
-        self.embedding = GoogleGenerativeAIEmbeddings(
+        self.embeddings = GoogleGenerativeAIEmbeddings(
             model="models/gemini-embedding-001",
         )
 
@@ -90,7 +90,6 @@ class BuildAgent():
         )
     
     def docs_to_vector_store(self, file_path: str = None):
-
         with st.spinner("Load necessary documents..."):
             docs = self._document_loader()
 
@@ -100,19 +99,18 @@ class BuildAgent():
                 add_start_index=True,
             )
             all_splits = text_splitter.split_documents(docs)
-            all_splits = [d for d in all_splits if d.page_content.strip()]
 
             if not all_splits:
                 raise ValueError("No valid text extracted from PDF")
 
             vector_store = FAISS.from_documents(
                 all_splits,
-                embedding=self.embedding
+                embedding=self.embeddings
             )
 
             doc_ids = list(vector_store.index_to_docstore_id.values())
-
             logger.success(f"Added {len(doc_ids)} documents to vector store")
+        
 
         return vector_store
     
@@ -128,7 +126,7 @@ class BuildAgent():
                 shutil.copyfileobj(raw_response, temp_md)
             temp_md_path = temp_md.name
 
-        # Load the PDF file from temporary path
+        # Load the Markdown file from temporary path
         loader = UnstructuredMarkdownLoader(temp_md_path)
         documents = loader.load()
 
@@ -137,8 +135,14 @@ class BuildAgent():
 
 # ------------ INTERFACE CODE ------------
 
-st.title("Personal Assistant Chatbot 💬")
-st.text("This chat will answer the information of Heykal expertise, enjoy chatting! ❤️")
+st.set_page_config(
+    # Title and icon for the browser's tab bar:
+    page_title="Daniel Chat",
+    page_icon="💬",
+    # Make the content take up the width of the page:
+)
+
+st.header("Personal Assistant Chatbot 💬", )
 st.caption("Want to chat me in person? Find me at the coffee shop on Main Street! ☕️")
 
 

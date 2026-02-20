@@ -24,30 +24,55 @@ This project uses `uv` for dependency management, but can also be installed via 
 
 ### Using `uv` (Recommended)
 
-1.  **Install `uv`** (if not already installed):
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
+#### macOS / Linux
 
-2.  **Sync dependencies**:
-    ```bash
-    uv sync
-    ```
+1. **Install `uv`** (if not already installed):
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+2. **Sync dependencies**:
+   ```bash
+   uv sync
+   ```
+
+#### Windows (PowerShell)
+
+1. Install `uv` using the installer from the official site:
+   - Open a browser and go to: https://astral.sh/uv
+   - Download and run the Windows installer.
+2. Open a new PowerShell window and sync dependencies:
+   ```powershell
+   uv sync
+   ```
 
 ### Using `pip`
 
-1.  **Create a virtual environment**:
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-    ```
+#### macOS / Linux
 
-2.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    # OR if requirements.txt is not generated, install from pyproject.toml
-    pip install .
-    ```
+1. **Create a virtual environment**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   pip install .
+   ```
+
+#### Windows (PowerShell)
+
+1. **Create a virtual environment**:
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   ```
+
+2. **Install dependencies**:
+   ```powershell
+   pip install .
+   ```
 
 ## Configuration
 
@@ -56,30 +81,58 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 GOOGLE_API_KEY=your_google_api_key_here
 LANGSMITH_API_KEY=your_langsmith_api_key_here
-WORKING_PROJECT_DIR=/absolute/path/to/your/project/root
+DOCUMENT_ONLINE_PATH=https://url-to-your-markdown-file.md
 ```
 
 - `GOOGLE_API_KEY`: Required for accessing Gemini models.
 - `LANGSMITH_API_KEY`: Required for LangChain tracing (set `LANGSMITH_TRACING="true"` in code or env).
-- `WORKING_PROJECT_DIR`: The absolute path to the project directory. This is used to locate the `docs` folder.
+- `DOCUMENT_ONLINE_PATH`: Required. Public URL to the Markdown document the chatbot will use.
 
 ## Usage
 
-1.  **Prepare your document**:
-    Ensure you have a `docs` directory in your project root and place your `resume.md` (or other markdown file) inside it.
-    *Note: The current code expects `docs/resume.md`.*
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/rag_langchain_streamlit.git
+   cd rag_langchain_streamlit
+   ```
 
-2.  **Run the Streamlit app**:
-    ```bash
-    streamlit run streamlit_app.py
-    ```
-    Or with `uv`:
-    ```bash
-    uv run streamlit run streamlit_app.py
-    ```
+2. **Install dependencies** (choose one):
+   - Using `uv` (recommended):
+     ```bash
+     uv sync
+     ```
+   - Using `pip` (after creating and activating a virtual environment):
+     ```bash
+     pip install .
+     ```
 
-3.  **Interact**:
-    Open your browser at `http://localhost:8501` and start chatting with the agent about the resume content.
+3. **Create and configure the `.env` file**:
+   - Copy the example below into a `.env` file in the project root:
+     ```env
+     GOOGLE_API_KEY=your_google_api_key_here
+     LANGSMITH_API_KEY=your_langsmith_api_key_here
+     DOCUMENT_ONLINE_PATH=https://url-to-your-markdown-file.md
+     ```
+
+4. **Prepare your document**:
+   - Ensure there is a `docs` directory in the project root.
+   - Place your `resume.md` file inside `docs/`.
+   - The app, by default, reads from `docs/resume.md`.
+
+5. **Run the Streamlit app**:
+   - Using plain Streamlit:
+     ```bash
+     streamlit run streamlit_app.py
+     ```
+   - Using `uv`:
+     ```bash
+     uv run streamlit run streamlit_app.py
+     ```
+
+6. **Use the app**:
+   - Open your browser at `http://localhost:8501`.
+   - Ask questions about the content of your `resume.md`.
+   - The chatbot will answer using Retrieval-Augmented Generation over your document.
 
 ## Project Structure
 
